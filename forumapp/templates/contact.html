@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}iDiscuss-Contact{% endblock title %}
+
+{% block style %}
+
+body{
+    background-image: url({% static 'IMG/contact_bg-1.jpg' %});
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+#contact_form{
+    border-radius: 25px;
+    margin-top: 150px;
+    margin-left: 50px;
+}
+
+@media screen and (max-width: 770px){
+    #contact_form{
+        margin: 0px auto;
+        margin-top: 50px;
+    }
+}
+
+{% endblock style %}
+
+
+{% block body %}
+
+{% for message in messages %}
+    <div id="message" class="container my-2">
+        <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+            <strong>{{message}}.</strong>
+            <button class="btn-close" type="button" data-bs-dismiss="alert" area-label="close"></button>
+        </div>
+    </div>
+{% endfor %}
+
+<div id="contact_form" class="col-md-5 p-3">
+    <h1 class="text-light m-auto text-center">Contact to iDiscuss</h1>
+    <hr class="w-50 mb-0 border-bottom border-light border-3 m-auto mt-1">
+        <form method="post" action="" class="col-md-8 text-center m-auto"> {% csrf_token %}
+            <div class="my-3">
+                <div class="mb-3">
+                    <input required placeholder="Name" type="text"
+                    class="text-center form-control" id="name" name="name">
+                </div>
+                <div class="mb-3">
+                    <input required placeholder="Email" type="email"
+                    class="text-center form-control" id="_email" name="email">
+                </div>
+                <div class="mb-3">
+                    <input required placeholder="Phone no" type="number"
+                    class="text-center form-control" id="phone" name="phone">
+                </div>
+                <div class="mb-3">
+                    <textarea placeholder="Describe your Query..." class="text-center form-control" id="desc" name="query"
+                    rows="3"></textarea>
+                </div>
+            </div>
+            <button id="Submit_btn" type="submit" class="btn btn-outline-success col-sm-5">Submit</button>
+        </form>
+</div>
+
+{% endblock body %}
+
+
+{% block script %}
+
+{% if user.is_authenticated %}
+
+{% else %}
+
+    <script>
+        let Submit_btn = document.getElementById('Submit_btn');
+        Submit_btn.setAttribute('disabled', 'disabled')
+    </script>
+
+{% endif %}
+
+{% endblock script %}

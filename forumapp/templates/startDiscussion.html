@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}iDiscuss-{{name}}{% endblock title %}
+
+{% block style %}
+
+#cat_intro{
+background-color: rgb(28, 196, 196);
+}
+
+#cat_desc{
+font-family: Arial, Helvetica, sans-serif;
+}
+
+{% endblock style %}
+
+{% block body %}
+
+{% for message in messages %}
+    <div id="message" class="container my-2">
+        <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+            <strong>{{message}}.</strong>
+            <button class="btn-close" type="button" data-bs-dismiss="alert" area-label="close"></button>
+        </div>
+    </div>
+{% endfor %}
+
+<div class="container my-2">
+    <div class="col-md-10 m-auto">
+        <div id="cat_intro" class="h-100 p-5 shadow-lg border rounded-3">
+            {% for cat in category %}
+            <h1 id="cat_name">{{cat.cat_name}}</h1>
+            <p id="cat_desc" class='fs-5'>{{cat.cat_desc}}</p>
+            {% endfor %}
+        </div>
+    </div>
+
+
+    {% if user.is_authenticated %}
+    <div class="mt-4">
+            <h1 class="col-md-10 my-3 border-bottom border-3 border-dark m-auto">Start Discussion</h1>
+            <form method="post" action="" class="col-md-10 m-auto"> {% csrf_token %}
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title:</label>
+                    <input required placeholder="Keep your title as short and crisp as possible" type="text" class="form-control" id="title" name="title">
+                    <small id="invalid_title" class="form-text invalid-feedback text-danger">Title should not contain question mark (?).</small>
+                </div>
+                <div class="mb-3">
+                    <label for="desc" class="form-label">Ellaborate Your Problem:</label>
+                    <textarea required placeholder="Describe your problem" class="form-control" id="desc" name="desc"
+                    rows="3"></textarea>
+                </div>
+                <button id="submit_btn" type="submit" class="btn btn-success col-md-2">Post</button>
+            </form>
+        </div>
+    {% else %}
+        <P class="fs-3 bg-danger px-1 m-auto my-3 col-md-10">You are not logged in. Please login to to start a Discussion.</p>
+    {% endif %}
+
+    
+    <h1 class="col-md-10 my-3 border-bottom border-3 border-dark m-auto">Browse Quetions</h1>
+    
+    {% for question in questions %}
+
+        <div class="d-flex align-items-center col-md-10 m-auto my-3">
+            <div class="flex-shrink-0">
+                <img height="70px" width="70px" src="{% static 'IMG/user.png' %}" alt="pic is not available for some reason.">
+            </div>
+            <div class="flex-grow-1 ms-3">
+                <h5><a href="{{question.ques_title}}">{{question.ques_title}}</a><span class="text-dark float-end"> Asked by: <a class="text-decoration-none" href="/user_profile/{{question.ques_user}}">{{question.ques_user}}</a> - {{question.ques_time|naturaltime}}<span></h5>
+                    {{question.ques_desc}}
+            </div>
+        </div>
+        <hr class="col-md-10 m-auto">
+    {% empty %}
+        <div class="col-md-10 m-auto">
+            <div class="p-4 bg-light border rounded-3">
+            <h2>No Questions Found</h2>
+            <p class="py-2 display-6">Be the first person to ask a question.</p>
+            </div>
+        </div>
+    {% endfor %}
+
+</div>
+
+
+{% endblock body %}
+
+{% block script %}
+
+<script>
+    let ques_title = document.getElementById('title');
+    ques_title.addEventListener('input', ()=> {
+        if (ques_title.value.includes('?')){
+            ques_title.classList.add('is-invalid');
+            document.getElementById('submit_btn').setAttribute('disabled', 'disabled');
+        }
+        else{
+            ques_title.classList.remove('is-invalid');
+            ques_title.classList.add('is-valid');
+            document.getElementById('submit_btn').removeAttribute('disabled');
+        }
+    });
+</script>
+
+{% endblock script %}

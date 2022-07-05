@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% block title %}iDiscuss- {% for u in user__ %}{{u.first_name}} {{u.last_name}}{% endfor %} {% endblock title %}
+
+{% block style %}
+{% load static %}
+
+#profile{
+    background-color: aliceblue;
+}
+
+h3,h5{
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#private_prf_btn{
+    cursor: pointer;
+}
+
+{% endblock style %}
+
+{% block body %}
+
+{% for message in messages %}
+    <div id="message" class="my-2 container">
+        <div class="text-center alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+            <strong>{{message}}.</strong>
+            <button class="btn-close" type="button" data-bs-dismiss="alert" area-label="close"></button>
+        </div>
+    </div>
+{% endfor %}
+
+<div id="profile" class="p-3 container shadow-lg my-2 border-3 rounded m-auto">
+    {% if isTrue is True %}
+    <div class="float-start">
+        <form id="update_img_form" action="{% url 'UpdateUserPic' %}" method="post" enctype="multipart/form-data"> {% csrf_token %}
+            <label for="upd_img" class="btn btn-outline-success">Edit Image</label>
+            <input required class="d-none" type="file" name="image" id="upd_img" accept="image/*">
+        </form>
+    
+    <button id="default_img" class="btn btn-outline-success mt-2">Set Default</button>
+    </div>
+    <div class="float-end">
+        <button id="edit_btn" class="btn btn-outline-success">Edit Details</button>
+    </div>
+    {% endif %}
+    <div class="text-center">
+
+    {% for detail in details %}
+        <img class='my-2 rounded-circle' width="250px" src="/media/{{detail.user_img}}" alt="Image is not Available for some reason.">
+    {% endfor %}
+
+    {% if isTrue is True %}
+        <div class="form-check form-switch my-2 d-flex justify-content-center">
+            {% if isPrivate == 'off' %}
+                <form action="{% url 'privateProfile' user=user %}" id="private_prf_form" method="post"> {% csrf_token %}
+                    <input type="checkbox" class="form-check-input" id="private_prf_btn">
+                </form>
+            {% else %}
+                <form action="{% url 'privateProfile' user=user %}" id="private_prf_form" method="post"> {% csrf_token %}
+                    <input checked type="checkbox" class="form-check-input" id="private_prf_btn">
+                </form>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {% for u in user__ %}
+    <div id="details">
+        <h3><span id="f_name">{{u.first_name|title}}</span> <span id="l_name">{{u.last_name|title}}</span></h3>
+        {% if isPrivate == 'off' %}
+            <h5 id="user_email" class="pb-2">{{u.email}}</h5>
+        {% else %}
+            <h5 id="user_email" class="pb-2 d-none">{{u.email}}</h5>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    </div>
+
+    <div class="my-2">&nbsp;</div>
+
+    <div class="row text-center">
+        <div class="col-md-6 border-dark border-3 border-end"><span class="h3">Question Asked:</span>
+            {% for question in questions %}
+                <p class="mt-2 fs-5">{{forloop.counter}}. <a class="text-decoration-none" href="/startDiscussion/{{question.ques_parent}}/{{question.ques_title}}">{{question.ques_title}}</a></p>
+            {% empty %}
+                <p class="mt-2 fs-5">No Question Asked.</p>
+            {% endfor %}
+        </div>
+
+        <div class="col-md-6"><span class="h3">Replied on:</span>
+            {% for reply in replies %}
+                <p class="mt-2 fs-5">{{forloop.counter}}. <a class="text-decoration-none" href="/startDiscussion/{{reply.reply_category}}/{{reply.reply_parent}}">{{reply.reply_parent}}</a></p>
+            {% empty %}
+                <p class="mt-2 fs-5">Never Replied.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+{% endblock body %}
+
+{% block script %}
+
+<script>
+    let first_name = document.getElementById('f_name').innerText;
+    let last_name = document.getElementById('l_name').innerText;
+    let user_email = document.getElementById('user_email').innerText;
+    let editButton = document.getElementById('edit_btn');
+    let details = document.getElementById('details');
+
+    editButton.addEventListener('click', ()=>{
+        details.innerHTML = `
+            <form method="post" class="col-md-8 text-center m-auto"> {% csrf_token %}
+                <div class="my-3">
+                    <div class="mb-3">
+                        <input required placeholder="First Name" type="text"
+                        class="text-center form-control" value=${first_name} id="first_name" name="first_name">
+                        <small id="f_name_validate" class="form-text text-danger invalid-feedback">Should not contain any digits or white spaces.</small>
+                    </div>
+                    <div class="mb-3">
+                        <input required placeholder="Last Name" type="text"
+                        class="text-center form-control" value=${last_name} id="last_name" name="last_name">
+                        <small id="l_name_validate" class="form-text text-danger invalid-feedback">Should not contain any digits or white spaces.</small>
+                    </div>
+                    <div class="mb-3">
+                        <input required placeholder="Email Address" type="email"
+                        class="text-center form-control" value=${user_email} id="email_val" name="email">
+                        <small id="email_validate_" class="form-text text-danger invalid-feedback">Please Enter a valid email.</small>
+                    </div>
+            </div>
+            <button id="Submit_btn" type="submit" class="btn btn-outline-success col-sm-5">Submit</button>
+            </form>
+        `;
+
+        const email_validate = /^([_\.\-0-9\Sa-zA-Z]+)@([\_\.\-0-9a-z\SA-Z]+)\.([\Sa-zA-Z]){2,7}$/;        
+        const Submit_btn = document.getElementById('Submit_btn'); 
+        let first_inp = document.getElementById('first_name');
+        let last_inp = document.getElementById('last_name');
+        let email_inp = document.getElementById('email_val');
+
+        const first_name_validate = /^([A-Z\Sa-z]){4,10}$/;
+        const last_name_validate = /^([A-Z\Sa-z]){4,10}$/;
+
+        first_inp.addEventListener('blur', ()=>{
+            if (first_name_validate.test(first_inp.value)) {
+                first_inp.classList.remove('is-invalid');
+                first_inp.classList.add('is-valid');
+                Submit_btn.removeAttribute('disabled');
+            }
+            else{
+                first_inp.classList.add('is-invalid');
+                Submit_btn.setAttribute('disabled', 'disabled');
+            }
+        });
+
+        last_inp.addEventListener('blur', ()=>{
+            if (last_name_validate.test(last_inp.value)) {
+                last_inp.classList.remove('is-invalid');
+                last_inp.classList.add('is-valid');
+                Submit_btn.removeAttribute('disabled');
+            }
+            else{
+                last_inp.classList.add('is-invalid');
+                Submit_btn.setAttribute('disabled', 'disabled');
+            }
+        });
+
+        email_inp.addEventListener('blur', ()=>{
+            if (email_validate.test(email_inp.value)) {
+                email_inp.classList.remove('is-invalid');
+                email_inp.classList.add('is-valid');
+                Submit_btn.removeAttribute('disabled');
+            }
+            else{
+                email_inp.classList.add('is-invalid');
+                Submit_btn.setAttribute('disabled', 'disabled');
+            }
+        });
+
+
+    });
+
+    let default_img = document.getElementById('default_img');
+    default_img.addEventListener('click', ()=>{
+        let user = '{{user}}';
+        window.location.href = `/set_as_default_pic/${user}`;
+    });
+
+    let upd_img = document.getElementById('upd_img');
+    upd_img.addEventListener('change', ()=>{
+        document.getElementById("update_img_form").submit();
+    });
+
+    let private_prf_btn = document.getElementById('private_prf_btn');
+    private_prf_btn.addEventListener('click', ()=>{
+        document.getElementById('private_prf_form').submit();
+    });
+
+</script>
+{% endblock script %}

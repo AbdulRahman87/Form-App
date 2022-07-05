@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}|| iDiscuss-Home ||{% endblock title %}
+
+{% block style %}
+#animate-section{
+    height: 50vh;
+    background-image: url({% static 'IMG/background_3.jpg' %});
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+@media screen and (max-width: 450px){
+    #animate-section{
+        height: 40vh;
+    }
+}
+
+#welcome_heading{
+    font-family: Arial, Helvetica, sans-serif;
+    padding-top: 4.3em;
+    padding-left: 1em;
+}
+
+#welcome_text{
+    padding-left: 2.8em;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    width: 37%;
+    font-size: 1.3em;
+}
+
+@media screen and (max-width: 450px){
+    #welcome_heading{
+        padding-top: 2.5em;
+        padding-left: 0.2em;
+        width: 50%;
+    }
+    #welcome_text{
+        padding-left: 0.8em;
+        width: 55%;
+        font-size: 1em;
+    }
+}
+
+#cat_btn:hover{
+    color: white;
+    background-color: black;
+}
+
+{% endblock style %}
+
+{% block body %}
+
+{% for message in messages %}
+    <div id="message" class="container my-1">
+        <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+            <strong>{{message}}.</strong>
+            <button class="btn-close" type="button" data-bs-dismiss="alert" area-label="close"></button>
+        </div>
+    </div>
+{% endfor %}
+
+<div id="animate-section" class="container-fluid ">
+    <h1 id="welcome_heading" class="text-light d-none">Welcome to iDiscuss.</h1>
+    <div id="welcome_text" class="text-light my-2"></div>
+</div>
+
+<h2 class="my-3 container text-center">Top Categories</h2>
+<div class="border-bottom m-auto w-25 border-3 border-dark"></div>
+
+<div class="row mb-2 container m-auto my-3">
+    {% for category in categories %}
+        <div class="col-md-6 m-auto">
+        <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+            <div class="col p-4 d-flex flex-column position-static">
+            <strong class="d-inline-block mb-2 text-primary">iDiscuss</strong>
+            <h3 class="mb-0">{{category.cat_name}}</h3>
+            <p class="card-text mb-auto">{{category.cat_desc|truncatechars:130}}</p>
+            <a href="startDiscussion/{{category.cat_name}}" class="stretched-link">Continue reading</a>
+            </div>
+            <div class="col-auto d-none d-lg-block">
+            <img src="media/{{category.cat_img}}" alt="Image is not Available." width="200" role="img" height="250">
+            </div>
+        </div>
+        </div>
+    {% endfor %}
+  </div>
+
+  <a href="{% url 'Categories' %}" id="cat_btn" class="btn d-block shadow-lg my-3 w-50 border m-auto btn-lg btn-light">All Categories</a>
+
+{% endblock body %}
+
+{% block script %}
+<script src="static/JS/index.js"></script>
+
+<script>
+    let user_names = [];
+    {% for user in users %}
+        user_names.push('{{user.username}}');
+    {% endfor %}
+</script>
+
+{% endblock script %}

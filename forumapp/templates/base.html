@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> {% block title %} {% endblock title %}</title>
+    <style>
+        .navbar {
+            background-color: rgb(187, 18, 60);
+        }
+
+        #nav-link {
+            font-size: 1.3em;
+        }
+        #welcome_user{
+            font-size: 1.2em;
+        }
+        *{
+            margin: 0px;
+            padding: 0px;
+            box-sizing: border-box;
+        }
+
+            {% block style %}
+
+            {% endblock style %}
+    </style>
+    <link rel="stylesheet" href="{% static 'CSS/stylesheet.css' %}">
+    <script src="{% static 'JS/jquery.js' %}"></script>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light ">
+        <div class="container-fluid">
+            <a class="navbar-brand text-light fs-3" href="{% url 'Home' %}">iDiscuss</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class=" collapse navbar-collapse">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item mx-2">
+                        <a id="nav-link" class="nav-link text-dark " aria-current="page"
+                            href="{% url 'Home' %}">Home</a>
+                    </li>
+                    <li class="nav-item mx-2">
+                        <a id="nav-link" class="nav-link text-dark" href="{% url 'Contact' %}">Contact us</a>
+                    </li>
+                    <li class="nav-item dropdown mx-2">
+                        <a id="nav-link" class="nav-link nav-dark dropdown-toggle" href="#" id="navbarDropdown"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Categories
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="/startDiscussion/JavaScript">JavaScript</a></li>
+                            <li><a class="dropdown-item" href="/startDiscussion/Python">Python</a></li>
+                            <li><a class="dropdown-item" href="/startDiscussion/React-JS">React</a></li>
+                            <li><a class="dropdown-item" href="/startDiscussion/Java">Java</a></li>
+                            <hr class="my-0" />
+                            <li><a href="{% url 'Categories' %}" class="my-1 dropdown-item">All Categories</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item mx-3">
+                        <a id="nav-link" href="{% url 'About' %}" class="nav-link text-dark ">About us</a>
+                    </li>
+                </ul>
+
+                <form method="get" action="{% url 'Search' %}" class="d-flex">
+                    <input required type="search" name="query" placeholder="Search" aria-label="Search"
+                        class="form-control me-2">
+                    <input type="submit" value="Search" class="btn btn-outline-dark">
+                </form>
+                {% if request.user.is_authenticated %}
+                <a href="/user_profile/{{request.user}}" id='welcome_user' class="nav-link text-light">{{request.user}}</a>
+                <a href="{% url 'handleLogOut' %}" class="mx-2 btn btn-dark">Logout</a>
+
+                {% else %}
+
+                <button type="button" data-bs-toggle="modal" data-bs-target="#loginmodal"
+                    class="btn btn-dark mx-2">Login</button>
+                <button type="button" data-bs-toggle="modal" data-bs-target="#signupmodal"
+                    class="btn btn-dark">Signup</button>
+
+                {% endif %}
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginmodal" tabindex="-1" aria-labelledby="loginmodalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginmodalLabel">Login to iDiscuss</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method='post' action='{% url 'handleLogIn' %}'> {% csrf_token %}
+                        <div class="my-4 col-sm-8 m-auto">
+                            <!-- <label for="name" class="form-label">Name:</label> -->
+                            <input required type="text" class="form-control text-center" id="reg_id" name="user_name"
+                                placeholder="Enter your user name">
+                        </div>
+
+                        <div class="my-4 col-sm-8 m-auto">
+                            <!-- <label for="age" class="form-label">Age:</label> -->
+                            <input required type="password" class="form-control text-center" id="password"
+                                name="password" maxlength="8" placeholder="Enter your password">
+                        </div>
+
+                        <input type="submit" value="Login!" class="btn btn-primary d-block m-auto  col-md-6 fs-5 " />
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary m-auto" data-bs-dismiss="modal">Close</button>
+                    <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div class="modal fade" id="signupmodal" tabindex="-1" aria-labelledby="signupmodalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="signupmodalLabel">Create your iDiscuss Account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center text-danger fs-5">Please choose a unique username. Once your account is created you can't change your username.</div>
+                    <form action="{% url 'handleSignUp' %}" method="post" class="row g-3" enctype="multipart/form-data"> {% csrf_token %}
+                        <div class="col-md-12">
+                            <label for="u_name" class="form-label">U_Name:</label>
+                            <input required placeholder="Enter you user name" maxlength="50" type="text"
+                                class="form-control" name="u_name" id="u_name">
+                            <small id="u_namevalid" class="form-text text-danger invalid-feedback">Username must be
+                                between 5-10
+                                characters long and should not start with a number and should not contain any white
+                                spaces.</small>
+                            <small id="user_exist" class="form-text text-danger"> This username is already exist- <span id="user_exist_name"></span></small>
+                        </div>
+                        <div class="col-md-12">
+                            <label for="fname" class="form-label">First Name:</label>
+                            <input required placeholder="Enter your first name" maxlength="50" type="text"
+                                class="form-control" name="fname" id="fname">
+                            <small id="fnamevalid" class="form-text text-danger invalid-feedback">First name should
+                                starts with
+                                capital letter other in small letters & First name should be from 3 to 10 characters
+                                long &
+                                should not contain any white spaces.</small>
+                        </div>
+                        <div class="col-md-12">
+                            <label for="lname" class="form-label">Last Name:</label>
+                            <input required placeholder="Enter your last name" maxlength="50" type="text"
+                                class="form-control" name="lname" id="lname">
+                            <small id="fnamevalid" class="form-text text-danger invalid-feedback">Last name should
+                                starts with
+                                capital letter other in small letters & Last name should be from 3 to 10 characters long
+                                &
+                                should not contain any white spaces.</small>
+                        </div>
+                        <div class="col-md-12">
+                            <label for="email" class="form-label">E-mail:</label>
+                            <input required placeholder="Enter your e-mail" maxlength="50" type="email"
+                                class="form-control" name="email" id="email">
+                            <small id="emailvalid" class="form-text text-danger invalid-feedback">Please enter a valid
+                                E-mail.</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="pass" class="form-label">Password:</label>
+                            <input required maxlength='8' placeholder="Set your password" type="password"
+                                class="form-control" id="pass" name="pass">
+                            <small id="passwordvalid" class="form-text text-danger invalid-feedback">Password length
+                                must be 8.
+                                Password must starts with any alphabet and may be combination of digits & alphabet and
+                                must ends
+                                with any digit.</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="c_pass" class="form-label">Confirm Password:</label>
+                            <input required maxlength='8' placeholder="Confirm your password" type="password"
+                                class="form-control" id="c_pass" name="c_pass">
+                            <small id="passwordvalid" class="form-text text-danger invalid-feedback">Password not
+                                matched.</small>
+                        </div>
+                            <div class="col-md-12">
+                            <label for="img" class="form-label">Upload your profile Pic:</label>
+                            <input id="img" type="file" accept="image/*" class="form-control" name="user_img">
+                        </div>
+                        <input id="btn" type="submit" value="SignUp"
+                            class="btn btn-primary mt-3 d-block m-auto col-md-6 fs-5"></input>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary m-auto" data-bs-dismiss="modal">Close</button>
+                    <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% block body %}{% endblock body %}
+</body>
+<script src="{% static 'JS/script.js' %}"></script>
+<script src="{% static 'JS/Signup_validation.js' %}"></script>
+{% block script %}{% endblock script %}
+<script>
+    document.getElementById('user_exist').classList.add('d-none');
+    let user_input = document.getElementById('u_name');
+    user_input.addEventListener('input', ()=>{
+        if (user_names.includes(user_input.value)){
+            document.getElementById('user_exist').classList.remove('d-none');
+            document.getElementById('user_exist_name').innerText = user_input.value;
+            document.getElementById('btn').classList.add('disabled');
+        }
+        else{
+            document.getElementById('user_exist').classList.add('d-none');
+            document.getElementById('btn').classList.remove('disabled');
+        }
+    });
+</script>
+</html>

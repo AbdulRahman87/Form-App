@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}iDiscuss-Search{% endblock title %}
+
+{% block body %}
+
+<div class="container my-2">
+    <h2 class="d-inline border-bottom border-3 border-dark py-1">Showing results for categories :- ({{query}})</h2>
+</div>
+
+<div class="row mb-2 container m-auto my-4">
+    {% for category in categories %}
+        <div class="col-md-12 m-auto">
+        <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+            <div class="col p-4 d-flex flex-column position-static">
+            <strong class="d-inline-block mb-2 text-primary">iDiscuss</strong>
+            <h3 class="mb-0">{{category.cat_name}}</h3>
+            <p class="card-text mb-auto">{{category.cat_desc|truncatechars:220}}</p>
+            <a href="/startDiscussion/{{category.cat_name}}" class="stretched-link">Continue reading</a>
+            </div>
+            <div class="col-auto d-none d-lg-block">
+            <img src="/media/{{category.cat_img}}" alt="Image is not Available." width="200" role="img" height="200">
+            </div>
+        </div>
+        </div>
+    {% empty %}
+        <div class="col-md-10">
+            <div class="p-4 bg-light border rounded-3">
+            <h2>Results not found.</h2>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<div class="container my-2">
+    <h2 class="d-inline border-bottom border-3 border-dark py-1">Showing results for questions :- ({{query}})</h2>
+</div>
+
+
+<div class="row mb-2 container m-auto my-4">
+    {% for question in questions %}
+        <div class="col-md-12 m-auto">
+        <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+            <div class="col p-4 d-flex flex-column position-static">
+            <h3 class="mb-0">{{question.ques_title}}?</h3>
+            <p class="card-text mb-auto">{{question.ques_desc|truncatechars:150}}</p>
+            <a href="/startDiscussion/{{question.ques_parent}}/{{question.ques_title}}" class="stretched-link"></a>
+            </div>
+        </div>
+        </div>
+    {% empty %}
+        <div class="col-md-10">
+            <div class="p-4 bg-light border rounded-3">
+            <h2>Results not found.</h2>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+
+{% endblock body %}

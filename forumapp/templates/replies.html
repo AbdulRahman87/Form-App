@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% block title %}iDiscuss-Replies{% endblock title %}
+{% load static %}
+{% load humanize %}
+
+{% block body %}
+
+{% for message in messages %}
+    <div id="message" class="container my-2">
+        <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+            <strong>{{message}}.</strong>
+            <button class="btn-close" type="button" data-bs-dismiss="alert" area-label="close"></button>
+        </div>
+    </div>
+{% endfor %}
+
+<div class="container my-2">
+    <div class="col-md-10 m-auto bg-secondary shadow-lg border border-light rounded">
+        <div id="cat_intro" class="h-100 p-5">
+            {% for ques in question %}
+                {% if request.user|slugify == ques.ques_user|slugify %}
+                    <button id="edit_ques_button" data-bs-toggle="modal" data-bs-target="#editquesmodal" class="btn btn-dark float-end">Edit</button>
+                {% endif %}
+                <span class="fs-5 d-block">Problem:-</span><h2 id="cat_name" class="d-inline">{{ques.ques_title}}</h2><span class="h2">?</span>
+                <p class="mt-2" id="cat_desc"><span class="text-light fs-5">{{ques.ques_desc}}</span></p>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if user.is_authenticated %}
+
+    <h1 class="col-md-10 my-3 border-bottom border-3 border-dark pb-1 m-auto">Drop your reply here:</h1>
+    <div class="mt-4">
+        <form method="post" action="" class="col-md-10 m-auto"> {% csrf_token %}
+            <div class="mb-3">
+                <textarea required placeholder="Enter your reply :)" class="p-2 fs-5 fst-italic form-control" id="desc" name="desc"
+                rows="3"></textarea>
+            </div>
+            {% for ques in question %}
+                {% if request.user|slugify == ques.ques_user|slugify %}
+                    <p class="btn disabled btn-success col-md-5">You can't post comment to your own question</p>
+                {% else %}
+                    <button type="submit" class="btn btn-success col-md-2">Drop</button>
+                {% endif %}
+            {% endfor %}
+        </form>
+    </div>
+
+    {% else %}
+
+    <P class="fs-3 bg-danger px-1 m-auto my-3 col-md-10">You are not logged in. Please login to to drop a Comment.</p>
+
+    {% endif %}
+
+    <h1 class="col-md-10 my-3 border-bottom border-3 border-dark m-auto pb-1">Replies:-</h1>
+
+    {% for reply in replies %}
+    
+    <div class="d-flex align-items-center col-md-10 m-auto my-3">
+        <div class="flex-shrink-0">
+            <img height="70px" width="70px" src="{% static 'IMG/user.png' %}" alt="pic is not available for some reason.">
+        </div>
+        <div class="flex-grow-1 ms-3">
+            <h5><span class="bg-warning p-1 text-dark float-end"> Comment by: <a class="text-decoration-none" href="/user_profile/{{reply.reply_user}}">{{reply.reply_user}}</a> - {{reply.reply_time|naturaltime}}<span></h5>
+            <p id="reply_desc_{{forloop.counter}}" class="fs-5 d-inline">{{reply.reply_desc}}</p> 
+            {% if reply.reply_user|slugify == request.user|slugify %}
+            <button id="upd_reply_btn_{{forloop.counter}}" data-bs-toggle="modal" data-bs-target="#editreplymodal" class="{{reply.reply_id}} btn edit_reply_button btn-outline-dark float-end">Edit</button>
+            {% endif %}
+        </div>
+    </div>
+    <hr class="col-md-10 m-auto">
+    {% empty %}
+    
+    <div class="col-md-10 m-auto">
+        <div class="p-4 bg-light border rounded-3">
+        <h2>No any Reply Found</h2>
+        <p class="py-2 display-6">Be the first person to reply on this question.</p>
+        </div>
+    </div>
+
+    {% endfor %}
+
+</div>
+
+
+<!-- Edit Question Modal -->
+<div class="modal fade" id="editquesmodal" tabindex="-1" aria-labelledby="editquesmodalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editquesmodalLabel">Edit your Question</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method='post' action="{% url 'UpdateQuestion' name=name slug=slug %}"> {% csrf_token %}
+                    <div class="my-4 col-sm-10 m-auto">
+                        <input required type="text" class="form-control text-center" id="upd_ques_title" name="upd_ques_title" placeholder="Enter title to be updated">
+                        <small id="invalid_title" class="text-center form-text text-danger invalid-feedback">Title should not contain question mark.</small>
+                    </div>
+
+                    <div class="my-4 col-sm-10 m-auto">
+                        <textarea required rows="3" class="form-control text-center" id="upd_ques_desc" name="upd_ques_desc" placeholder="Enter description to be updated"></textarea>
+                    </div>
+
+                    <input id="upd_ques_button" type="submit" value="Update" class="btn btn-primary d-block m-auto  col-md-6 fs-5 " />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Edit Reply Modal -->
+<div class="modal fade" id="editreplymodal" tabindex="-1" aria-labelledby="editreplymodalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editreplymodalLabel">Edit your Reply</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="update_reply_form" method='post'> {% csrf_token %}
+                    <div class="my-4 col-sm-10 m-auto">
+                        <textarea required rows="3" class="form-control text-center" id="upd_reply_desc" name="upd_reply_desc" placeholder="Enter reply to be updated"></textarea>
+                    </div>
+
+                    <input id="update_reply" type="submit" value="Update" class="btn btn-primary d-block m-auto  col-md-6 fs-5 " />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock body %}
+
+{% block script %}
+
+<script>
+    {% for ques in question %}
+        {% if request.user|slugify == ques.ques_user|slugify %}
+            document.getElementById('edit_ques_button').addEventListener('click', ()=>{
+                document.getElementById('upd_ques_title').value = document.getElementById('cat_name').innerText;
+                document.getElementById('upd_ques_desc').value = document.getElementById('cat_desc').innerText;
+            });
+
+            document.getElementById('upd_ques_title').addEventListener('input', ()=>{
+                let upd_ques_title = document.getElementById('upd_ques_title').value;
+                if(upd_ques_title.includes('?')){
+                    document.getElementById('upd_ques_title').classList.add('is-invalid');
+                    document.getElementById('upd_ques_button').setAttribute('disabled', 'disabled');
+                }
+                else{
+                    document.getElementById('upd_ques_title').classList.remove('is-invalid');
+                    document.getElementById('upd_ques_title').classList.add('is-valid');
+                    document.getElementById('upd_ques_button').removeAttribute('disabled');
+                }
+            });
+        {% endif %}
+    {% endfor %}
+
+    let edit_reply_buttons = document.getElementsByClassName('edit_reply_button');
+    for (button of edit_reply_buttons){
+        button.addEventListener('click', (e)=>{
+            let reply_id = e.target.classList[0];
+            console.log(reply_id);
+            let action_attribute = `/update_reply/${reply_id}/{{name}}/{{slug}}`;
+            document.getElementById('update_reply_form').setAttribute('action', action_attribute);
+            let button_id = e.target.id.slice(14);
+            let reply_desc = document.getElementById(`reply_desc_${button_id}`).innerText;
+            document.getElementById('upd_reply_desc').value = reply_desc;
+        });
+    }
+
+
+</script>
+
+{% endblock script %}

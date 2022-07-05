@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About the Developer - Abdul Rahman{% endblock title %}
+
+{% block body %}
+
+<div class="container my-2">
+    <h2 class="my-2 d-inline border-bottom border-3 border-dark p-1">About the developer</h2><br />
+</div>
+
+<div class="container-fluid h-100 mx-3 my-3">
+    <div class="row">
+        <img id="img" src="{% static 'IMG/Kaif1.jpeg' %}" class="mx-5 p-0 shadow-lg col-md-5 my-3 border rounded-3"
+            alt="Image is not available for some reason">
+
+        <p id="para" class="mx-5 h-100 text-center fs-4 shadow-lg lh-lg bg-light col-md-5 my-3 border p-4 pb-5">
+            <img src="{% static 'IMG/Kaif4.jpeg' %}" class="border h-25 w-25 d-block m-auto rounded-circle"
+                alt="Image is not available for some reason">
+            <span class="h2 d-block text-center border-bottom pb-2 my-2">Abdul Rahman</span>
+            Hello, I am <b>Abdul Rahman</b>. I am <em>19</em> y/o boy from Tehsil Fatehpur. I passed class
+            <b>10th</b> and <b>12th</b> from <i>UP Board.</i> Currently, I am pursuing diploma in <i>Computer
+                Science & Engineering</i>.
+            I developed some more interesting projects checkout my <a href="https://github.com/AbdulRahman87"
+                target="_blank">github</a> account. Please visit at my <a href="https://github.com/AbdulRahman87"
+                target="_blank">github</a> account and make a pull request to demonstrate some more new and exciting
+            Features. My passion is to become a <i>professional Full-Stack Web Developer</i>. I like to watch and
+            play
+            cricket, listening song, watching movies, learning new things etc.<br />
+            <a href="#" class="fa bg-primary mx-1 text-light my-5 fa-facebook"></a>
+            <a href="#" class="fa fa-twitter mx-1"></a>
+            <a href="#" class="fa text-danger mx-1 fa-instagram"></a>
+            <a href="https://github.com/AbdulRahman87" class="fa mx-1 text-dark fa-github"></a>
+        </p>
+    </div>
+</div>
+
+{% endblock body %}
